@@ -74,6 +74,7 @@ tr.on td{background:var(--bg);font-weight:600;box-shadow:inset 3px 0 0 var(--ac)
  <select id="sel"></select>
  <div class="seg" role="group" aria-label="Base de cálculo"><button data-m="b" class="on">Bruto</button><button data-m="l">Líquido</button></div>
  <label id="ipw" hidden><input type="checkbox" id="ip" checked> Descontar IPASGO</label>
+ <label id="acw" hidden><input type="checkbox" id="ac" checked> Incluir AC5 (auxílio-alimentação)</label>
  <button class="b2" id="dbtn" aria-expanded="false">Ver descontos da folha</button>
  <button class="b2" id="imp">Importar planilha</button>
  <button class="b2" id="dl" hidden>Baixar planilha</button>
@@ -110,6 +111,7 @@ tr.on td{background:var(--bg);font-weight:600;box-shadow:inset 3px 0 0 var(--ac)
 
 <ul class="fn">
  <li>PMGO e CBMGO têm os mesmos subsídios, por isso o painel é único. No modo líquido, desmarcar “Descontar IPASGO” usa a coluna “Líq. sem IPASGO” da planilha; os demais descontos (previdência, FAS e IRRF) não mudam.</li>
+ <li>O AC5 (auxílio-alimentação) é de R$ 1.000,00 por mês e vale para militares da ativa em serviço, não para quem está de férias ou baixado. Ele é somado apenas ao líquido e pode ser desmarcado; as diferenças em % do modo líquido mudam conforme essa escolha.</li>
  <li>As datas do histórico foram lidas como mês/ano (a planilha as grava como data com o ano no lugar do dia). Colunas sem data aparecem pela lei de reajuste. Losangos indicam valores calculados por fórmula na planilha (2023 a 2025).</li>
  <li>A diferença salarial é calculada sobre o valor exibido. A ligação entre ST e 2º Tenente é uma troca de quadro, não uma promoção comum.</li>
 </ul>
@@ -145,12 +147,13 @@ P0.forEach(p=>p.push(SI[p[0]]));
 const DS={"2Sd":[855.26,99.91,1096.08,554.70],"Sd":[942.94,99.91,1301.57,611.56],"Cb":[1035.46,99.91,1518.43,671.57],"3SGT":[1135.37,99.91,1752.62,736.37],"2SGT":[1229.98,99.91,1974.41,797.73],"1SGT":[1419.21,99.91,2417.97,838.71],"ST":[1802.54,99.91,3316.52,838.71],"2TEN":[1871.47,99.91,3478.08,838.71],"1TEN":[2176.12,99.91,4192.21,838.71],"CAP":[2997.44,99.91,6117.41,838.71],"MAJ":[3426.43,99.91,7122.98,838.71],"TC":[3813.76,99.91,8030.91,838.71],"Cel I":[4230.66,99.91,9008.14,838.71],"Cel II":[5077.07,99.91,10992.16,838.71]};
 P0.forEach(p=>p.push(DS[p[0]]));
 let P=P0,H=H0;
-const st={sel:"CAP",m:"b",ip:true,hm:"sel",hy:"v"};
+const AC=1000; /* AC5 – auxílio-alimentação mensal (planilha: aba 2SGT e Dashboard), pago a militares da ativa em serviço */
+const st={sel:"CAP",m:"b",ip:true,ac:true,hm:"sel",hy:"v"};
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const R=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const Pc=v=>v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
 const sg=(v,f)=>(v>=0?"+ ":"− ")+f(Math.abs(v));
-const val=p=>st.m==="b"?p[4]:(st.ip?p[5]:p[6]);
+const val=p=>st.m==="b"?p[4]:(st.ip?p[5]:p[6])+(st.ac?AC:0);
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 let ch1,ch2;
 
@@ -167,7 +170,7 @@ function render(){
   const q=(x,y)=>x&&y&&x[2]!==y[2]?" · troca de quadro":"";
   const na='<div class="v">Não aplicável</div><div class="n">Sem nível correspondente</div>';
   const dA=a?val(c)-val(a):0,pA=a?(val(c)/val(a)-1)*100:0,dN=n?val(n)-val(c):0,pN=n?(val(n)/val(c)-1)*100:0;
-  const b=st.m==="b"?"bruto":"líquido"+(st.ip?"":" sem IPASGO");
+  const b=st.m==="b"?"bruto":"líquido"+(st.ip?"":" sem IPASGO")+(st.ac?" + AC5":"");
   $("#cards").innerHTML=
    `<div class="c hero"><div class="l">${c[1]} · ${b}</div><div class="v">${R(val(c))}</div><div class="n">Nível ${c[3]}º ${c[2]==="O"?"dos oficiais":"das praças"} · posição ${i+1} de ${P.length}</div></div>`+
    `<div class="c"><div class="l">Posto anterior</div>${a?`<div class="v">${R(val(a))}</div><div class="n">${a[1]}${q(a,c)}</div>`:na}</div>`+
@@ -210,17 +213,18 @@ function drawC2(){
 function drawD(){
   const c=P.find(p=>p[0]===st.sel),d=c[7];$("#dsec").hidden=!st.dOpen;if(!st.dOpen||!d)return;
   const ip=st.ip?d[3]:0,liq=st.ip?c[5]:c[6],tot=d[0]+d[1]+d[2]+ip,pc=v=>Pc(v/c[4]*100),m=v=>"− "+R(v);
-  const rows=[["Subsídio bruto",R(c[4]),pc(c[4])],["Previdência (10,5%)",m(d[0]),pc(d[0])],["FAS",m(d[1]),pc(d[1])],["IRRF",m(d[2]),pc(d[2])],["IPASGO"+(st.ip?"":" (não descontado)"),st.ip?m(ip):R(0),pc(ip)],["Total de descontos",m(tot),pc(tot)],["Líquido"+(st.ip?"":" sem IPASGO"),R(liq),pc(liq)]];
-  $("#dsub").textContent=c[1]+" · valores mensais conforme a planilha. Use a caixa “Descontar IPASGO” para incluir ou retirar esse desconto.";
+  const rows=[["Subsídio bruto",R(c[4]),pc(c[4])],["Previdência (10,5%)",m(d[0]),pc(d[0])],["FAS",m(d[1]),pc(d[1])],["IRRF",m(d[2]),pc(d[2])],["IPASGO"+(st.ip?"":" (não descontado)"),st.ip?m(ip):R(0),pc(ip)],["Total de descontos",m(tot),pc(tot)],["Líquido"+(st.ip?"":" sem IPASGO"),R(liq),pc(liq)],["(+) AC5 – Auxílio-alimentação"+(st.ac?"":" (não incluído)"),R(st.ac?AC:0),pc(st.ac?AC:0)],["Total líquido"+(st.ac?" com AC5":""),R(liq+(st.ac?AC:0)),pc(liq+(st.ac?AC:0))]];
+  $("#dsub").textContent=c[1]+" · valores mensais conforme a planilha. Use as caixas “Descontar IPASGO” e “Incluir AC5” acima para ajustar o líquido.";
   $("#dtb").innerHTML=rows.map((r,k)=>`<tr class="${k===rows.length-1?"on":""}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
 }
-const syncIp=()=>{$("#ipw").hidden=!(st.m==="l"||st.dOpen)};
+const syncIp=()=>{const s=st.m==="l"||st.dOpen;$("#ipw").hidden=!s;$("#acw").hidden=!s};
 $("#dbtn").onclick=()=>{st.dOpen=!st.dOpen;$("#dbtn").textContent=st.dOpen?"Ocultar descontos da folha":"Ver descontos da folha";$("#dbtn").setAttribute("aria-expanded",st.dOpen);syncIp();render()};
 
 /* ===== Controles ===== */
 const seg=(sel,key,fn)=>$$(sel+" button").forEach(b=>b.onclick=()=>{$$(sel+" button").forEach(x=>x.classList.toggle("on",x===b));fn(b)});
 seg('[aria-label="Base de cálculo"]',"m",b=>{st.m=b.dataset.m;syncIp();render()});
 $("#ip").onchange=e=>{st.ip=e.target.checked;render()};
+$("#ac").onchange=e=>{st.ac=e.target.checked;render()};
 seg('[aria-label="Postos"]',"hm",b=>{st.hm=b.dataset.h;drawC2()});
 seg('[aria-label="Métrica"]',"hy",b=>{st.hy=b.dataset.y;drawC2()});
 $("#sel").onchange=e=>pick(e.target.value);
