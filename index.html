@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel de Remuneração Militar – Goiás</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f7;--card:#fff;--tx:#14202e;--mu:#617085;--bd:#dfe4ea;--pm:#1f3a5f;--cbm:#a4262c;--ac:var(--pm);--up:#15803d;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-inst=cbm]{--ac:var(--cbm)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e141b;--card:#161f2a;--tx:#e6edf5;--mu:#93a1b3;--bd:#263445;--pm:#78a7e8;--cbm:#f28b8b;--up:#4ade80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e141b;--card:#161f2a;--tx:#e6edf5;--mu:#93a1b3;--bd:#263445;--pm:#78a7e8;--cbm:#f28b8b;--up:#4ade80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+.w{max-width:1120px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:3px solid var(--ac);padding-bottom:14px}
+h1{font-size:clamp(20px,3.4vw,28px);margin:0;font-weight:600;letter-spacing:-.01em}
+h2{font-size:17px;margin:0 0 4px;font-weight:600}
+.sub{color:var(--mu);font-size:13px;margin:2px 0 0}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;color:var(--tx);padding:8px 14px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--ac);color:#fff}
+.seg button:not(.on):hover{background:var(--bd)}
+button,select{font:inherit;color:var(--tx)}
+.b2{border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:8px 12px;cursor:pointer}
+select{border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:9px 12px;min-width:240px;max-width:100%}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.ctl{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:18px 0}
+.ctl label{color:var(--mu);font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.c.hero{background:var(--ac);border-color:var(--ac);color:#fff}
+.c.hero .l,.c.hero .n{color:rgba(255,255,255,.82)}
+.l{color:var(--mu);font-size:13px}
+.v{font-size:clamp(20px,2.6vw,26px);font-weight:600;margin:4px 0 2px}
+.n{color:var(--mu);font-size:13px}
+.up{color:var(--up)}
+.sec{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-top:16px}
+.cv{position:relative;height:340px;margin-top:10px}
+.tw{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mu);font-weight:500}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--bg)}
+tr.on td{background:var(--bg);font-weight:600;box-shadow:inset 3px 0 0 var(--ac)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.msg{padding:40px 10px;text-align:center;color:var(--mu)}
+#dtb tr{cursor:default}#dtb tr:hover{background:none}
+.fn{color:var(--mu);font-size:12.5px;margin-top:18px}
+.fn li{margin:3px 0}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ac);color:#fff;padding:10px 16px;border-radius:8px;display:none}
+@media (max-width:560px){select{min-width:0;width:100%}.cv{height:300px}}
+</style>
+</head>
+<body>
+<div class="w">
+<header>
+ <div>
+  <h1>Painel de Remuneração Militar – Goiás</h1>
+  <p class="sub" id="inst">Polícia Militar (PMGO) e Corpo de Bombeiros Militar (CBMGO) · mesma tabela de subsídios</p>
+ </div>
+ <div class="bar">
+  <button class="b2" id="th" aria-label="Alternar tema">Tema</button>
+ </div>
+</header>
+
+<div class="ctl">
+ <label for="sel">Posto ou graduação</label>
+ <select id="sel"></select>
+ <div class="seg" role="group" aria-label="Base de cálculo"><button data-m="b" class="on">Bruto</button><button data-m="l">Líquido</button></div>
+ <label id="ipw" hidden><input type="checkbox" id="ip" checked> Descontar IPASGO</label>
+ <button class="b2" id="dbtn" aria-expanded="false">Ver descontos da folha</button>
+ <button class="b2" id="imp">Importar planilha</button>
+ <button class="b2" id="dl" hidden>Baixar planilha</button>
+ <button class="b2" id="rst" hidden>Restaurar dados originais</button>
+ <input type="file" id="file" accept=".xlsx,.xls" hidden>
+</div>
+
+<div class="cards" id="cards"></div>
+
+<section class="sec" id="dsec" hidden>
+ <h2>Descontos da folha</h2>
+ <p class="sub" id="dsub"></p>
+ <div class="tw"><table><thead><tr><th>Item</th><th>Valor mensal</th><th>% do subsídio</th></tr></thead><tbody id="dtb"></tbody></table></div>
+</section>
+
+<section class="sec">
+ <h2>Evolução ao longo da carreira</h2>
+ <p class="sub">Barras: remuneração de cada nível. Linha: crescimento sobre o nível anterior. Clique em uma barra para selecionar.</p>
+ <div class="cv"><canvas id="c1" role="img" aria-label="Remuneração por posto e graduação"></canvas></div>
+ <div class="tw"><table><thead><tr><th>Posto / graduação</th><th>Remuneração</th><th>Dif. p/ anterior</th><th>Crescimento</th></tr></thead><tbody id="tb"></tbody></table></div>
+</section>
+
+<section class="sec">
+ <div class="row">
+  <div><h2>Evolução histórica (subsídio bruto)</h2><p class="sub" id="hnote"></p></div>
+  <div class="bar">
+   <div class="seg" role="group" aria-label="Postos"><button data-h="sel" class="on">Posto selecionado</button><button data-h="all">Todos</button></div>
+   <div class="seg" role="group" aria-label="Métrica"><button data-y="v" class="on">R$</button><button data-y="p">% acumulado</button></div>
+  </div>
+ </div>
+ <div class="cv"><canvas id="c2" role="img" aria-label="Evolução histórica do subsídio"></canvas></div>
+ <div class="msg" id="hmsg" hidden></div>
+</section>
+
+<ul class="fn">
+ <li>PMGO e CBMGO têm os mesmos subsídios, por isso o painel é único. No modo líquido, desmarcar “Descontar IPASGO” usa a coluna “Líq. sem IPASGO” da planilha; os demais descontos (previdência, FAS e IRRF) não mudam.</li>
+ <li>As datas do histórico foram lidas como mês/ano (a planilha as grava como data com o ano no lugar do dia). Colunas sem data aparecem pela lei de reajuste. Losangos indicam valores calculados por fórmula na planilha (2023 a 2025).</li>
+ <li>A diferença salarial é calculada sobre o valor exibido. A ligação entre ST e 2º Tenente é uma troca de quadro, não uma promoção comum.</li>
+</ul>
+</div>
+<div id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ===== DADOS (origem: planilha "Renda PM/CBM MENSAL", nov/2026) =====
+   P: [sigla, nome, quadro (O=oficiais, P=praças), nível, subsídio bruto, líquido c/ IPASGO] em ordem crescente.
+   H: histórico por sigla (13 postos; Cel II não tem histórico). calc = índices calculados por fórmula na planilha. */
+const P0=[["2Sd","Soldado 2ª Classe","P",1,8145.38,5539.42],["Sd","Soldado 1ª Classe","P",2,8980.38,6024.39],["Cb","Cabo","P",3,9861.48,6536.12],["3SGT","3º Sargento","P",4,10813.01,7088.74],["2SGT","2º Sargento","P",5,11714.12,7612.08],["1SGT","1º Sargento","P",6,13516.29,8740.48],["ST","Subtenente","P",7,17167.09,11109.40],["2TEN","2º Tenente","O",1,17823.49,11535.32],["1TEN","1º Tenente","O",2,20724.98,13418.02],["CAP","Capitão","O",3,28547.01,18493.54],["MAJ","Major","O",4,32632.62,21144.59],["TC","Tenente-Coronel","O",5,36321.52,23538.23],["Cel I","Coronel I","O",6,40291.99,26114.57],["Cel II","Coronel II","O",7,48353.02,31345.17]];
+const H0={labels:["jun/10","out/10","nov/10","dez/10","abr/11","jul/11","out/11","jan/12","mai/14","L. 18.172/13","L. 18.417/14","set/14","dez/14","mar/15","dez/16","dez/17","dez/18","mar/22","mai/23","out/23","mai/24","jan/25","mai/26"],calc:[18,19,20,21],rows:{
+"Cel I":[12110,12220,12330,12440,12880,13320,13760,14200,16282.23,16653.46,17109.77,17578.58,20830.61,21305.62,23932.6,26883.49,30198.23,33266.36,34237.74,35237.48,36865.45,39022.08,40291.99],
+"TC":[10900,11000,11100,11200,11600,12000,12400,12800,14676.95,15011.58,15422.9,15845.49,18776.9,19205.06,21573.04,24233,27220.93,29986.58,30862.19,31763.36,33230.83,35174.84,36321.52],
+"MAJ":[9809,9898,9987,10076,10432,10788,11144,11500,13186.32,13486.97,13856.51,14236.18,16869.87,17254.55,19382.04,21771.84,24456.31,26941.07,27727.75,28537.4,29855.83,31602.39,32632.62],
+"CAP":[8813.61,8879.22,8944.83,9010.44,9272.88,9535.32,9797.76,10060.2,11535.39,11798.4,12121.67,12453.81,14757.76,15094.28,16955.4,19046.01,21394.38,23568.05,24256.24,24964.52,26117.88,27645.78,28547.01],
+"1TEN":[6045,6090,6135,6180,6360,6540,6720,6900,7911.8,8092.19,8313.92,8541.72,10121.93,10352.73,11629.22,13063.1,14673.79,16164.64,16636.65,17122.44,17913.49,18961.43,20724.98],
+"2TEN":[5198.7,5237.4,5276.1,5314.8,5469.6,5624.4,5779.2,5934,6804.14,6959.27,7149.96,7345.87,8704.85,8903.35,10001.13,11234.27,12619.46,13901.6,14307.53,14725.31,15405.62,16306.84,17823.49],
+"ST":[4247.25,4294.49,4341.74,4388.98,4577.96,4766.95,4995.93,5144.91,5899.34,6033.84,6199.17,6369.03,7547.3,7719.4,8671.2,9740.36,10941.35,12052.99,12404.94,12767.16,13357,14138.39,17167.09],
+"1SGT":[3405.6,3463.2,3520.8,3578.4,3808.8,4039.2,4269.6,4500,5159.87,5277.52,5422.12,5570.69,6601.26,6751.78,7584.27,8519.42,9569.86,10542.16,10849.99,11166.81,11682.72,12366.16,13516.29],
+"2SGT":[3159,3198,3237,3276,3420,3588,3744,3900,4471.87,4573.83,4699.15,4827.91,5721.07,5851.54,6573.03,7383.49,8293.87,9136.54,9403.33,9677.9,10125.02,10717.34,11714.12],
+"3SGT":[3030,3060,3090,3120,3240,3360,3480,3600,4127.89,4222.01,4337.69,4456.54,5281,5401.43,6067.43,6815.54,7655.9,8433.73,8679.99,8933.45,9346.18,9892.93,10813.01],
+"Cb":[2900.16,2920.32,2940.48,3000.96,3041.28,3121.92,3202.56,3283.2,3764.64,3850.47,3955.98,4064.37,4816.28,4926.1,5533.49,6215.77,6982.17,7691.56,7916.15,8147.31,8523.71,9022.35,9861.48],
+"Sd":[2823.07,2823.07,2823.07,2989.85,2989.85,2989.85,2989.85,2989.85,3428.27,3506.43,3602.51,3701.22,4385.95,4485.96,5039.08,5660.4,6358.32,7004.33,7208.86,7419.36,7762.13,8216.21,8980.38],
+"2Sd":[2711.88,2711.88,2711.88,2711.88,2711.88,2711.88,2711.88,2711.88,3109.54,3180.44,3267.58,3357.11,3978.18,4068.88,4570.57,5134.13,5767.16,6353.13,6538.64,6729.57,7040.48,7452.34,8145.38]}};
+
+/* Líquido sem IPASGO (coluna "Líq. sem IPASGO" da planilha) -> índice 6 de cada posto */
+const SI={"2Sd":6094.12,"Sd":6635.96,"Cb":7207.68,"3SGT":7825.11,"2SGT":8409.82,"1SGT":9579.19,"ST":11948.11,"2TEN":12374.03,"1TEN":14256.73,"CAP":19332.25,"MAJ":21983.30,"TC":24376.94,"Cel I":26953.28,"Cel II":32183.88};
+P0.forEach(p=>p.push(SI[p[0]]));
+/* Descontos da folha por posto -> índice 7: [Previdência 10,5%, FAS, IRRF, IPASGO] (abas "Subsídios Completos", colunas D a G) */
+const DS={"2Sd":[855.26,99.91,1096.08,554.70],"Sd":[942.94,99.91,1301.57,611.56],"Cb":[1035.46,99.91,1518.43,671.57],"3SGT":[1135.37,99.91,1752.62,736.37],"2SGT":[1229.98,99.91,1974.41,797.73],"1SGT":[1419.21,99.91,2417.97,838.71],"ST":[1802.54,99.91,3316.52,838.71],"2TEN":[1871.47,99.91,3478.08,838.71],"1TEN":[2176.12,99.91,4192.21,838.71],"CAP":[2997.44,99.91,6117.41,838.71],"MAJ":[3426.43,99.91,7122.98,838.71],"TC":[3813.76,99.91,8030.91,838.71],"Cel I":[4230.66,99.91,9008.14,838.71],"Cel II":[5077.07,99.91,10992.16,838.71]};
+P0.forEach(p=>p.push(DS[p[0]]));
+let P=P0,H=H0;
+const st={sel:"CAP",m:"b",ip:true,hm:"sel",hy:"v"};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const R=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const Pc=v=>v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+const sg=(v,f)=>(v>=0?"+ ":"− ")+f(Math.abs(v));
+const val=p=>st.m==="b"?p[4]:(st.ip?p[5]:p[6]);
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let ch1,ch2;
+
+function opts(){ // seletor hierárquico
+  const o=P.filter(p=>p[2]==="O").reverse(),pr=P.filter(p=>p[2]!=="O").reverse();
+  const g=(t,a)=>`<optgroup label="${t}">${a.map(p=>`<option value="${p[0]}">${p[1]} (${p[0]})</option>`).join("")}</optgroup>`;
+  $("#sel").innerHTML=g("Oficiais",o)+g("Praças",pr);
+  if(!P.some(p=>p[0]===st.sel))st.sel=P[Math.floor(P.length/2)][0];
+  $("#sel").value=st.sel;
+}
+
+function render(){
+  const i=P.findIndex(p=>p[0]===st.sel),c=P[i],a=P[i-1],n=P[i+1];
+  const q=(x,y)=>x&&y&&x[2]!==y[2]?" · troca de quadro":"";
+  const na='<div class="v">Não aplicável</div><div class="n">Sem nível correspondente</div>';
+  const dA=a?val(c)-val(a):0,pA=a?(val(c)/val(a)-1)*100:0,dN=n?val(n)-val(c):0,pN=n?(val(n)/val(c)-1)*100:0;
+  const b=st.m==="b"?"bruto":"líquido"+(st.ip?"":" sem IPASGO");
+  $("#cards").innerHTML=
+   `<div class="c hero"><div class="l">${c[1]} · ${b}</div><div class="v">${R(val(c))}</div><div class="n">Nível ${c[3]}º ${c[2]==="O"?"dos oficiais":"das praças"} · posição ${i+1} de ${P.length}</div></div>`+
+   `<div class="c"><div class="l">Posto anterior</div>${a?`<div class="v">${R(val(a))}</div><div class="n">${a[1]}${q(a,c)}</div>`:na}</div>`+
+   `<div class="c"><div class="l">Diferença para o anterior</div>${a?`<div class="v">${sg(dA,R)}</div><div class="n">${sg(pA,Pc)}</div>`:na}</div>`+
+   `<div class="c"><div class="l">Próximo posto (promoção)</div>${n?`<div class="v">${R(val(n))}</div><div class="n">${n[1]}${q(c,n)}</div>`:na}</div>`+
+   `<div class="c"><div class="l">Ganho com a promoção</div>${n?`<div class="v up">${sg(dN,R)}</div><div class="n up">${sg(pN,Pc)}</div>`:na}</div>`;
+  $("#tb").innerHTML=P.slice().reverse().map(p=>{const k=P.indexOf(p),x=P[k-1];
+    return `<tr data-k="${p[0]}" class="${p[0]===st.sel?"on":""}"><td>${p[1]}</td><td>${R(val(p))}</td><td>${x?sg(val(p)-val(x),R):"n/a"}</td><td>${x?sg((val(p)/val(x)-1)*100,Pc):"n/a"}</td></tr>`}).join("");
+  $$("#tb tr").forEach(r=>r.onclick=()=>pick(r.dataset.k));
+  drawD();drawC1();drawC2();
+}
+function pick(k){st.sel=k;$("#sel").value=k;render()}
+
+function base(){Chart.defaults.color=cssv("--mu");Chart.defaults.borderColor=cssv("--bd");Chart.defaults.font.family='"IBM Plex Sans",system-ui,sans-serif'}
+function drawC1(){
+  base();ch1&&ch1.destroy();const ac=cssv("--ac"),mu=cssv("--bd");
+  ch1=new Chart($("#c1"),{data:{labels:P.map(p=>p[0]),datasets:[
+   {type:"bar",label:"Remuneração",data:P.map(val),backgroundColor:P.map(p=>p[0]===st.sel?ac:mu),borderRadius:4,yAxisID:"y"},
+   {type:"line",label:"Crescimento sobre o anterior (%)",data:P.map((p,k)=>k?(val(p)/val(P[k-1])-1)*100:null),borderColor:cssv("--up"),backgroundColor:cssv("--up"),yAxisID:"y1",tension:.25,pointRadius:3}]},
+   options:{maintainAspectRatio:false,onClick:(e,el)=>{if(el.length)pick(P[el[0].index][0])},
+    plugins:{legend:{position:"bottom"},tooltip:{callbacks:{label:c=>c.dataset.yAxisID==="y"?" "+R(c.parsed.y):" "+Pc(c.parsed.y)}}},
+    scales:{y:{ticks:{callback:v=>"R$ "+(v/1000).toLocaleString("pt-BR")+" mil"}},y1:{position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+}
+function drawC2(){
+  base();ch2&&ch2.destroy();const rows=H.rows,one=st.hm==="sel";
+  $("#hnote").textContent=`${H.labels[0]} a ${H.labels[H.labels.length-1]} · ${H.labels.length} pontos na planilha. Sem dados estimados.`;
+  const keys=one?[st.sel]:P.slice().reverse().map(p=>p[0]).filter(k=>rows[k]);
+  const miss=one&&!rows[st.sel];
+  $("#hmsg").hidden=!miss;$("#c2").parentElement.hidden=miss;
+  if(miss){$("#hmsg").textContent=`A planilha não traz histórico para ${st.sel}.`;return}
+  ch2=new Chart($("#c2"),{type:"line",data:{labels:H.labels,datasets:keys.map((k,j)=>{
+    const a=rows[k],col=one?cssv("--ac"):`hsl(${Math.round(j*360/keys.length)} 60% 50%)`;
+    return{label:k,data:st.hy==="v"?a:a.map(x=>(x/a[0]-1)*100),borderColor:col,backgroundColor:col,tension:.2,borderWidth:one?3:1.8,pointRadius:one?4:0,pointHoverRadius:5,
+     pointStyle:a.map((_,x)=>(H.calc||[]).includes(x)?"rectRot":"circle")}})},
+   options:{maintainAspectRatio:false,interaction:{mode:one?"index":"nearest",intersect:false},
+    plugins:{legend:{display:!one,position:"bottom",labels:{boxWidth:10,font:{size:11}}},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${st.hy==="v"?R(c.parsed.y):Pc(c.parsed.y)}`}}},
+    scales:{y:{ticks:{callback:v=>st.hy==="v"?"R$ "+(v/1000).toLocaleString("pt-BR")+" mil":v.toLocaleString("pt-BR")+"%"}},x:{ticks:{maxRotation:60,autoSkip:true}}}}});
+}
+
+function drawD(){
+  const c=P.find(p=>p[0]===st.sel),d=c[7];$("#dsec").hidden=!st.dOpen;if(!st.dOpen||!d)return;
+  const ip=st.ip?d[3]:0,liq=st.ip?c[5]:c[6],tot=d[0]+d[1]+d[2]+ip,pc=v=>Pc(v/c[4]*100),m=v=>"− "+R(v);
+  const rows=[["Subsídio bruto",R(c[4]),pc(c[4])],["Previdência (10,5%)",m(d[0]),pc(d[0])],["FAS",m(d[1]),pc(d[1])],["IRRF",m(d[2]),pc(d[2])],["IPASGO"+(st.ip?"":" (não descontado)"),st.ip?m(ip):R(0),pc(ip)],["Total de descontos",m(tot),pc(tot)],["Líquido"+(st.ip?"":" sem IPASGO"),R(liq),pc(liq)]];
+  $("#dsub").textContent=c[1]+" · valores mensais conforme a planilha. Use a caixa “Descontar IPASGO” para incluir ou retirar esse desconto.";
+  $("#dtb").innerHTML=rows.map((r,k)=>`<tr class="${k===rows.length-1?"on":""}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+}
+const syncIp=()=>{$("#ipw").hidden=!(st.m==="l"||st.dOpen)};
+$("#dbtn").onclick=()=>{st.dOpen=!st.dOpen;$("#dbtn").textContent=st.dOpen?"Ocultar descontos da folha":"Ver descontos da folha";$("#dbtn").setAttribute("aria-expanded",st.dOpen);syncIp();render()};
+
+/* ===== Controles ===== */
+const seg=(sel,key,fn)=>$$(sel+" button").forEach(b=>b.onclick=()=>{$$(sel+" button").forEach(x=>x.classList.toggle("on",x===b));fn(b)});
+seg('[aria-label="Base de cálculo"]',"m",b=>{st.m=b.dataset.m;syncIp();render()});
+$("#ip").onchange=e=>{st.ip=e.target.checked;render()};
+seg('[aria-label="Postos"]',"hm",b=>{st.hm=b.dataset.h;drawC2()});
+seg('[aria-label="Métrica"]',"hy",b=>{st.hy=b.dataset.y;drawC2()});
+$("#sel").onchange=e=>pick(e.target.value);
+$("#th").onclick=()=>{const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;d.dataset.theme=dark?"light":"dark";render()};
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>render());
+
+/* ===== Importação de nova planilha (.xlsx) =====
+   Lê as abas "Subsídios Completos" (A=nível, B=posto, C=subsídio, H=líquido) e "Evolução Histórica"
+   (linha com "POSTO / GRADUAÇÃO" + valores abaixo). */
+const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const ALIAS={"CORONEL":"Cel I","TENENTE CORONEL":"TC","MAJOR":"MAJ","CAPITÃO":"CAP","1º TENENTE":"1TEN","2º TENENTE":"2TEN","SUBTENENTE":"ST","1º SARGENTO":"1SGT","2º SARGENTO":"2SGT","3º SARGENTO":"3SGT","CABO":"Cb","SOLDADO 1º CLASSE":"Sd","SOLDADO 2ª CLASSE":"2Sd"};
+function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",3500)}
+function parse(wb){
+  const nm=wb.SheetNames.find(s=>/subs[ií]dios/i.test(s)),hn=wb.SheetNames.find(s=>/hist/i.test(s));
+  if(!nm)throw new Error('Aba "Subsídios Completos" não encontrada.');
+  const names=Object.fromEntries(P0.map(p=>[p[0],p[1]])),rows=XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1});
+  let quadro="O",out=[],seen=false;
+  for(const r of rows){
+    if(typeof r[1]==="string"&&typeof r[2]==="number"&&typeof r[7]==="number"){seen=true;out.push([r[1].trim(),names[r[1].trim()]||r[1].trim(),quadro,parseInt(r[0])||0,r[2],r[7],typeof r[10]==="number"?r[10]:r[7],[r[3],r[4],r[5],r[6]].map(Number)])}
+    else if(seen&&!r.length&&quadro==="O")quadro="P";
+    else if(seen&&r.length&&typeof r[2]!=="number")break;
+  }
+  if(out.length<2)throw new Error("Nenhum posto encontrado.");
+  out.sort((a,b)=>a[4]-b[4]);
+  let h=null;
+  if(hn){const hr=XLSX.utils.sheet_to_json(wb.Sheets[hn],{header:1}),hi=hr.findIndex(r=>String(r[0]||"").toUpperCase().startsWith("POSTO"));
+    if(hi>0){const laws=hr[0]||[],labels=[];
+      for(let c=1;c<hr[hi].length;c++){const v=hr[hi][c];
+        if(typeof v==="number"){const d=XLSX.SSF.parse_date_code(v);labels.push(MES[d.m-1]+"/"+String(d.d).padStart(2,"0"))}else if(typeof v==="string"&&v)labels.push(v);else labels.push(laws[c]?"L. "+String(laws[c]).replace(/\D*([\d.]+\/\d+)/,"$1"):"s/d")}
+      const rw={};for(let r=hi+1;r<hr.length&&hr[r].length;r++){const k=ALIAS[String(hr[r][0]).trim().toUpperCase()]||hr[r][0];rw[k]=hr[r].slice(1,labels.length+1).map(Number)}
+      h={labels,calc:[],rows:rw}}}
+  return{P:out,H:h||{labels:[],calc:[],rows:{}}};
+}
+$("#imp").onclick=()=>$("#file").click();
+$("#file").onchange=e=>{const f=e.target.files[0];if(!f)return;const fr=new FileReader();
+  fr.onload=()=>{try{const d=parse(XLSX.read(fr.result,{type:"array"}));P=d.P;H=d.H;opts();render();$("#rst").hidden=false;toast("Planilha importada: "+P.length+" postos.")}
+   catch(err){toast("Erro ao importar: "+err.message)}};
+  fr.readAsArrayBuffer(f);e.target.value=""};
+$("#rst").onclick=()=>{P=P0;H=H0;opts();render();$("#rst").hidden=true;toast("Dados originais restaurados.")};
+
+/* ===== Baixar planilha (mesma estrutura aceita pela importação) ===== */
+function buildXlsx(){
+  const wb=XLSX.utils.book_new(),des=P.slice().reverse(),O=des.filter(p=>p[2]==="O"),Pr=des.filter(p=>p[2]!=="O");
+  const row=p=>{const d=p[7]||[];return[p[3]+"º",p[0],p[4],d[0],d[1],d[2],d[3],p[5],null,null,p[6]]};
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([["Subsídio PM/CBM GO"],["Nível","Posto / Graduação","Subsídio","PREV (10,5%)","FAS","IRRF","IPASGO B.","Líquido","","","Líq. sem IPASGO"],...O.map(row),[],...Pr.map(row)]),"Subsídios Completos");
+  const hk=des.map(p=>p[0]).filter(k=>H.rows[k]);
+  if(hk.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([["Evolução histórica do subsídio bruto"],[],["POSTO / GRADUAÇÃO",...H.labels],...hk.map(k=>[k,...H.rows[k]])]),"Evolução Histórica");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([["Como atualizar"],["Edite os valores e importe este arquivo no painel (botão Importar planilha)."],["Mantenha as abas Subsídios Completos e Evolução Histórica e a ordem das colunas."],["Na aba de subsídios: oficiais primeiro, uma linha em branco e depois as praças."]]),"Leia-me");
+  return XLSX.write(wb,{type:"array",bookType:"xlsx"});
+}
+let DL=null;
+(window.claude?claude.use("downloads"):Promise.resolve(null)).then(d=>{if(d){DL=d;$("#dl").hidden=false}}).catch(()=>{});
+$("#dl").onclick=async()=>{try{await DL.save({filename:"renda-pm-cbm-mensal.xlsx",data:buildXlsx()});toast("Planilha baixada.")}catch(e){if(!e||e.code!=="declined")toast("Não foi possível baixar a planilha.")}};
+
+opts();render();
+</script>
+</body>
+</html>
